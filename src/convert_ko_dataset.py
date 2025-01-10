@@ -132,13 +132,13 @@ pileconstants.splits["train"] = DataSplitConstants(
     hf_split="train", folder_split="train", raw_samples=210607728, truncated_samples=None
 )
 pileconstants.splits["train_small"] = DataSplitConstants(
-    hf_split="train", folder_split="train_small", raw_samples=1000000, truncated_samples=100000
+    hf_split="train", folder_split="train_small", raw_samples=100000, truncated_samples=10000
 )
 pileconstants.splits["val"] = DataSplitConstants(
     hf_split="validation", folder_split="val", raw_samples=214670, truncated_samples=None
 )
 pileconstants.splits["val_small"] = DataSplitConstants(
-    hf_split="validation", folder_split="val_small", raw_samples=10000, truncated_samples=10000
+    hf_split="validation", folder_split="val_small", raw_samples=1000, truncated_samples=1000
 )
 
 c4constants = DatasetConstants(
