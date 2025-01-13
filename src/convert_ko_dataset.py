@@ -49,8 +49,8 @@ def parse_args() -> Namespace:
     parsed.data_subset = 'ko'
     # parsed.splits = ['train_small', 'val_small']
     parsed.splits = ['train', 'val']
-    parsed.out_root = './my-copy-c4/ko'
-    parsed.compression = 'gz'
+    parsed.out_root = '/Volumes/TrainData/my-copy-c4/ko'
+    # parsed.compression = 'gz'
 
     # _families: dict[str, type[Compression]] = {
     #     'br': Brotli,
