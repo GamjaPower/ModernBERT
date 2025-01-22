@@ -171,3 +171,5 @@ wandb/
 # c4 data
 my-copy-c4/
 work/
+models/
+checkpoints/
