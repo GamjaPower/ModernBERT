@@ -173,3 +173,4 @@ my-copy-c4/
 work/
 models/
 checkpoints/
+tokenizer-save-dir*/

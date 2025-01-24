@@ -4,6 +4,7 @@
 """Streaming dataset conversion scripts for C4 and The Pile."""
 
 import os
+import sys
 import platform
 import warnings
 from argparse import ArgumentParser, Namespace
@@ -45,28 +46,8 @@ def parse_args() -> Namespace:
 
     parsed = parser.parse_args()
 
-    parsed.dataset = 'allenai/c4'
-    parsed.data_subset = 'ko'
-    # parsed.splits = ['train_small', 'val_small']
-    parsed.splits = ['train', 'val']
-    parsed.out_root = '/Volumes/TrainData/my-copy-c4/ko'
-    # parsed.compression = 'gz'
-
-    # _families: dict[str, type[Compression]] = {
-    #     'br': Brotli,
-    #     'bz2': Bzip2,
-    #     'gz': Gzip, 
-    #     'snappy': Snappy,
-    #     'zstd': Zstandard,
-    # }    
-
 
     if os.path.isdir(parsed.out_root) and len(set(os.listdir(parsed.out_root)).intersection(set(parsed.splits))) > 0:
-        # delete the existing files
-        # for split in parsed.splits:
-        #     split_path = os.path.join(parsed.out_root, split)
-        #     if os.path.exists(split_path):
-        #         os.remove(split_path)
         raise ValueError(
             f"--out_root={parsed.out_root} contains {os.listdir(parsed.out_root)} which cannot overlap with the requested splits {parsed.splits}."
         )
@@ -458,4 +439,15 @@ def main(args: Namespace) -> None:
 
 
 if __name__ == "__main__":
+
+    # parsed.compression = 'gz'
+    # _families: dict[str, type[Compression]] = {
+    #     'br': Brotli,
+    #     'bz2': Bzip2,
+    #     'gz': Gzip, 
+    #     'snappy': Snappy,
+    #     'zstd': Zstandard,
+    # }    
+    sys.argv = ['', '--dataset', 'allenai/c4', '--data_subset', 'ko', '--splits', 'train', 'val', '--out_root', '/Volumes/TrainData/my-copy-c4/ko']
+
     main(parse_args())
