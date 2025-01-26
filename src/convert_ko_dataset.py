@@ -139,7 +139,24 @@ c4constants.splits["val_small"] = DataSplitConstants(
     hf_split="validation", folder_split="val_small", raw_samples=10000, truncated_samples=10000
 )
 
-CONSTS = {"allenai/c4": c4constants, "the_pile": pileconstants}
+fineweb2 = DatasetConstants(
+    chars_per_sample=2163,  # Computed over validation set
+    chars_per_token=4,  # OpenAI estimate
+)
+fineweb2.splits["train"] = DataSplitConstants(
+    hf_split="train", folder_split="train", raw_samples=364868892, truncated_samples=None
+)
+fineweb2.splits["train_small"] = DataSplitConstants(
+    hf_split="train", folder_split="train_small", raw_samples=1000000, truncated_samples=100000
+)
+fineweb2.splits["val"] = DataSplitConstants(
+    hf_split="test", folder_split="val", raw_samples=364608, truncated_samples=None
+)
+fineweb2.splits["val_small"] = DataSplitConstants(
+    hf_split="test", folder_split="val_small", raw_samples=10000, truncated_samples=10000
+)
+
+CONSTS = {"allenai/c4": c4constants, "the_pile": pileconstants, "HuggingFaceFW/fineweb-2": fineweb2}
 
 
 class NoConcatDataset(IterableDataset):
@@ -448,6 +465,7 @@ if __name__ == "__main__":
     #     'snappy': Snappy,
     #     'zstd': Zstandard,
     # }    
-    sys.argv = ['', '--dataset', 'allenai/c4', '--data_subset', 'ko', '--splits', 'train', 'val', '--out_root', '/Volumes/TrainData/my-copy-c4/ko']
-
+    # sys.argv = ['', '--dataset', 'allenai/c4', '--data_subset', 'ko', '--splits', 'train', 'val', '--out_root', '/Volumes/TrainData/my-copy-c4/ko']
+    # sys.argv = ['', '--dataset', 'HuggingFaceFW/fineweb-2', '--data_subset', 'kor_Hang', '--splits', 'train', 'val', '--out_root', '/Volumes/TrainData/fineweb2/kor_Hang']
+    sys.argv = ['', '--dataset', 'HuggingFaceFW/fineweb-2', '--data_subset', 'kor_Hang', '--splits', 'train', 'val', '--out_root', '/Volumes/TrainData/fineweb2/kor_Hang']
     main(parse_args())

@@ -1,6 +1,8 @@
 from transformers import BertTokenizer, AutoTokenizer
 from transformers import pipeline
 from pprint import pprint
+from composer.models import write_huggingface_pretrained_from_composer_checkpoint
+
 import torch
 import os
 
