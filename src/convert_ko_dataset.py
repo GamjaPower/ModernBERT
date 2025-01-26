@@ -144,13 +144,13 @@ fineweb2 = DatasetConstants(
     chars_per_token=4,  # OpenAI estimate
 )
 fineweb2.splits["train"] = DataSplitConstants(
-    hf_split="train", folder_split="train", raw_samples=364868892, truncated_samples=None
+    hf_split="train", folder_split="train", raw_samples=58200000, truncated_samples=None
 )
 fineweb2.splits["train_small"] = DataSplitConstants(
-    hf_split="train", folder_split="train_small", raw_samples=1000000, truncated_samples=100000
+    hf_split="train", folder_split="train_small", raw_samples=58200000, truncated_samples=100000
 )
 fineweb2.splits["val"] = DataSplitConstants(
-    hf_split="test", folder_split="val", raw_samples=364608, truncated_samples=None
+    hf_split="test", folder_split="val", raw_samples=28700, truncated_samples=None
 )
 fineweb2.splits["val_small"] = DataSplitConstants(
     hf_split="test", folder_split="val_small", raw_samples=10000, truncated_samples=10000
