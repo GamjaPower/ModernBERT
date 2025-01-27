@@ -16,16 +16,16 @@ def update_config(source_config):
         "architectures": ["ModernBertForMaskedLM"],
         "attention_bias": source_config["attn_out_bias"],
         "attention_dropout": source_config["attention_probs_dropout_prob"],
-        "bos_token_id": 50281,
+        # "bos_token_id": 3,
         "classifier_activation": "gelu", #source_config["head_class_act"],
         "classifier_bias": source_config["head_class_bias"],
         "classifier_dropout": source_config["head_class_dropout"],
         "classifier_pooling": "mean",
-        "cls_token_id": 50281,
+        # "cls_token_id": 3,
         "decoder_bias": source_config["decoder_bias"],
         "deterministic_flash_attn": source_config["deterministic_fa2"],
         "embedding_dropout": source_config["embed_dropout_prob"],
-        "eos_token_id": 50282,
+        # "eos_token_id": 4,
         "global_attn_every_n_layers": source_config["global_attn_every_n_layers"],
         "global_rope_theta": source_config["rotary_emb_base"],
         "gradient_checkpointing": source_config["gradient_checkpointing"],
@@ -45,9 +45,9 @@ def update_config(source_config):
         "norm_eps": source_config["norm_kwargs"]["eps"],
         "num_attention_heads": source_config["num_attention_heads"],
         "num_hidden_layers": source_config["num_hidden_layers"],
-        "pad_token_id": 50283,
+        # "pad_token_id": 5,
         "position_embedding_type": source_config["position_embedding_type"],
-        "sep_token_id": 50282,
+        # "sep_token_id": 4,
         "tie_word_embeddings": True,
         "torch_dtype": "float32",
         "transformers_version": "4.48.0",
@@ -70,7 +70,7 @@ def convert():
     args = parser.parse_args()
 
     write_huggingface_pretrained_from_composer_checkpoint(
-        f"./checkpoints/{args.model_name}/ep0-ba4000-rank0.pt",
+        f"./checkpoints/{args.model_name}/ep0-ba1000-rank0.pt",
         f"./models/{args.model_name}/",
     )
 
@@ -104,7 +104,7 @@ def convert():
         config_dict = json.load(f)
 
     config_dict["model_max_length"] = 8192
-    config_dict["added_tokens_decoder"]["50284"]["lstrip"] = True
+    # config_dict["added_tokens_decoder"]["6"]["lstrip"] = True
     config_dict["model_input_names"] = ["input_ids", "attention_mask"]
     config_dict["tokenizer_class"] = "PreTrainedTokenizerFast"
     if "extra_special_tokens" in config_dict:
@@ -122,5 +122,5 @@ def convert():
 
     
 if __name__ == "__main__":    
-    sys.argv = ['', '--model_name', 'modernbert-base-en']
+    sys.argv = ['', '--model_name', 'modernbert-base-kr']
     convert()
