@@ -11,7 +11,7 @@ import os
 # --- Configuration ---
 DATASET_NAME = "HuggingFaceFW/fineweb-2"  # Dataset for tokenizer training
 SUB_DATASET_NAME = "kor_Hang"  # Sub-dataset for tokenizer training
-NUM_EXAMPLES_TO_TRAIN = 100_0000  # Number of examples to use from the streaming dataset
+NUM_EXAMPLES_TO_TRAIN = 1  # Number of examples to use from the streaming dataset
 BATCH_SIZE = 1000
 
 # --- Tokenizer Training ---
@@ -27,8 +27,10 @@ def train_tokenizer():
 
     # 배치 이터레이터 생성
     def batch_iterator(dataset, batch_size=1000):
-        for i in range(0, 10000, batch_size): # len(dataset)
-            yield dataset[i:i+batch_size]["text"]
+        for i in range(0, NUM_EXAMPLES_TO_TRAIN, 1): # len(dataset)
+            # yield dataset[i:i+batch_size]["text"]
+            yield('')
+
 
     tokens_dict = { 
         'unk_token': '[UNK]',
@@ -63,16 +65,16 @@ def train_tokenizer():
         '  ',    
     ]
     
-    old_tokenizer.add_special_tokens(special_tokens_dict = tokens_dict, replace_additional_special_tokens=True)
+    # old_tokenizer.add_special_tokens(special_tokens_dict = tokens_dict, replace_additional_special_tokens=True)
     new_tokenizer = old_tokenizer.train_new_from_iterator(
         batch_iterator(dataset),
         vocab_size=len(old_tokenizer.get_vocab())-26, # 3 + 23
         min_frequency=2,
     )
     new_tokens = [ 
+        AddedToken('|||IP_ADDRESS|||', rstrip=False, lstrip=False, normalized=True, special=False),
         AddedToken('<|padding|>', lstrip=False, rstrip=False, normalized=False, special=True),
         AddedToken('<|endoftext|>', lstrip=False, rstrip=False, normalized=False, special=True),
-        AddedToken('|||IP_ADDRESS|||', rstrip=False, lstrip=False, normalized=True, special=False),
         AddedToken('|||EMAIL_ADDRESS|||', rstrip=False, lstrip=False, normalized=True, special=False),
         AddedToken('|||PHONE_NUMBER|||', rstrip=False, lstrip=False, normalized=True, special=False),
     ]
@@ -82,7 +84,7 @@ def train_tokenizer():
     
     new_tokenizer.add_tokens(new_tokens, special_tokens=False)
 
-    new_tokenizer.save_pretrained("./work/fineweb2_tokenizer")
+    new_tokenizer.save_pretrained("./work/fineweb2_100_tokenizer")
     
 
 if __name__ == "__main__":

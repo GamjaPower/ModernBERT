@@ -11,7 +11,7 @@ import os
 # --- Configuration ---
 DATASET_NAME = "HuggingFaceFW/fineweb-2"  # Dataset for tokenizer training
 SUB_DATASET_NAME = "kor_Hang"  # Sub-dataset for tokenizer training
-TOKENIZER_SAVE_PATH = "./work/fineweb_tokenizer"  # Directory to save the trained tokenizer
+TOKENIZER_SAVE_PATH = "./work/fineweb_hand_tokenizer"  # Directory to save the trained tokenizer
 VOCAB_SIZE = 50368  # Desired vocabulary size
 # NUM_EXAMPLES_TO_TRAIN = 3_0000  # Number of examples to use from the streaming dataset
 NUM_EXAMPLES_TO_TRAIN = 1000  # Number of examples to use from the streaming dataset
@@ -34,8 +34,16 @@ def train_tokenizer(dataset_iterator, vocab_size=VOCAB_SIZE, save_path=TOKENIZER
     tokenizer.normalizer = NFC()
     # tokenizer.decoder = ByteLevel(add_prefix_space=False, use_regex=True)
 
+    # 'unk_token': '[UNK]',
+    # 'sep_token': '[SEP]',
+    # 'pad_token': '[PAD]',
+    # 'cls_token': '[CLS]',
+    # 'mask_token': '[MASK]',
+
+
     trainer = WordPieceTrainer(
         vocab_size=vocab_size,
+        special_tokens=[AddedToken('<|padding|>', lstrip=False, rstrip=False, normalized=True),],
         special_tokens=[AddedToken('<|padding|>', lstrip=False, rstrip=False, normalized=True),],
         min_frequency=2
     )
@@ -45,6 +53,8 @@ def train_tokenizer(dataset_iterator, vocab_size=VOCAB_SIZE, save_path=TOKENIZER
             yield [item["text"] for item in islice(dataset_iterator, i, i + batch_size)]
 
     tokenizer.train_from_iterator(batch_iterator(), trainer=trainer, length=NUM_EXAMPLES_TO_TRAIN)
+
+    os.makedirs(save_path, exist_ok=True)
     tokenizer.save(os.path.join(save_path, "tokenizer.json"))
     print(f"Tokenizer trained and saved to {save_path}")
     return tokenizer

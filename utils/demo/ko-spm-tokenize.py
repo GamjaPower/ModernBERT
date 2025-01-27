@@ -4,10 +4,11 @@ import os
 
 # --- Configuration ---
 DATASET_NAME = "ssmits/fineweb-2-dutch"
-TOKENIZER_SAVE_PATH = "./work/domain_tokenizer"
-VOCAB_SIZE = 32768
-NUM_EXAMPLES_TO_TRAIN = 1_0000  # Increased for SPM
-MODEL_TYPE = "unigram"  # Can be changed to "bpe" for Byte Pair Encoding
+TOKENIZER_SAVE_PATH = "./work/fineweb2_spm_tokenizer"
+VOCAB_SIZE = 50368
+NUM_EXAMPLES_TO_TRAIN = 1000  # Increased for SPM
+# MODEL_TYPE = "unigram"  # Can be changed to "bpe" for Byte Pair Encoding
+MODEL_TYPE = "bpe"  # Can be changed to "bpe" for Byte Pair Encoding
 BATCH_SIZE = 1000
 
 # --- SPM Tokenizer Training ---
@@ -38,17 +39,18 @@ def train_tokenizer(dataset_iterator, vocab_size=VOCAB_SIZE, save_path=TOKENIZER
         f"--vocab_size={vocab_size}",
         f"--model_type={model_type}",
         f"--split_digits=true",
-        f"--normalization_rule_name=nmt_nfkc_cf",
+        f"--normalization_rule_name=nmt_nfkc_cf", 
         f"--add_dummy_prefix=false",
         f"--remove_extra_whitespaces=true",
-        f"--pad_id=3",
-        f"--unk_id=0",
-        f"--bos_id=1",
-        f"--eos_id=2",
+        f"--pad_id=50283",
+        f"--unk_id=50280",
+        f"--bos_id=50281",
+        f"--eos_id=50282",
         # For potentially faster training:
         # f"--input_sentence_size=1000000", # Limit the size of the corpus used for training
         # f"--shuffle_input_sentence=true", # Shuffle the training data
     ]
+
     spm_train_args = " ".join(spm_train_args)
 
     # Train the SentencePiece model
