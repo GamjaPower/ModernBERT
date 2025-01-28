@@ -9,6 +9,10 @@ import argparse
 import torch
 import tempfile
 
+from transformers import pipeline
+from pprint import pprint
+
+
 def update_config(source_config):
     # Create target config with values from first config format
     target_config = {
@@ -16,16 +20,16 @@ def update_config(source_config):
         "architectures": ["ModernBertForMaskedLM"],
         "attention_bias": source_config["attn_out_bias"],
         "attention_dropout": source_config["attention_probs_dropout_prob"],
-        "bos_token_id": 50281,
+        # "bos_token_id": 50281,
         "classifier_activation": "gelu", #source_config["head_class_act"],
         "classifier_bias": source_config["head_class_bias"],
         "classifier_dropout": source_config["head_class_dropout"],
         "classifier_pooling": "mean",
-        "cls_token_id": 50281,
+        # "cls_token_id": 50281,
         "decoder_bias": source_config["decoder_bias"],
         "deterministic_flash_attn": source_config["deterministic_fa2"],
         "embedding_dropout": source_config["embed_dropout_prob"],
-        "eos_token_id": 50282,
+        # "eos_token_id": 50282,
         "global_attn_every_n_layers": source_config["global_attn_every_n_layers"],
         "global_rope_theta": source_config["rotary_emb_base"],
         "gradient_checkpointing": source_config["gradient_checkpointing"],
@@ -36,7 +40,8 @@ def update_config(source_config):
         "intermediate_size": source_config["intermediate_size"],
         "layer_norm_eps": source_config["norm_kwargs"]["eps"],
         "local_attention": source_config["sliding_window"],
-        "local_rope_theta": source_config["local_attn_rotary_emb_base"] if source_config["local_attn_rotary_emb_base"] else source_config["rotary_emb_base"],
+        # "local_rope_theta": source_config["local_attn_rotary_emb_base"] if source_config["local_attn_rotary_emb_base"] else source_config["rotary_emb_base"],
+        "local_rope_theta": 10000.0,
         "max_position_embeddings": 8192,  # Override with first config value
         "mlp_bias": source_config["mlp_in_bias"],
         "mlp_dropout": source_config["mlp_dropout_prob"],
@@ -45,9 +50,9 @@ def update_config(source_config):
         "norm_eps": source_config["norm_kwargs"]["eps"],
         "num_attention_heads": source_config["num_attention_heads"],
         "num_hidden_layers": source_config["num_hidden_layers"],
-        "pad_token_id": 50283,
+        # "pad_token_id": 50283,
         "position_embedding_type": source_config["position_embedding_type"],
-        "sep_token_id": 50282,
+        # "sep_token_id": 50282,
         "tie_word_embeddings": True,
         "torch_dtype": "float32",
         "transformers_version": "4.48.0",
@@ -121,6 +126,23 @@ def convert():
         json.dump(config_dict, f, indent=2)
 
     
+    pipe = pipeline(
+        "fill-mask",
+        # model="answerdotai/ModernBERT-base",
+        model="./models/modernbert-base-kr",
+        # model="./models/modernbert-base-uncased",
+        # torch_dtype=torch.float32,
+        # pipeline_class='ModernBertForMaskedLM',
+    )
+
+    # input_text = "He walked to the [MASK]."
+    # input_text = "She doned to the [MASK]."
+    input_text = "다음주 월요일에 온라인 [MASK]."
+    # input_text = "안철수를 떠나며 [MASK] 말했다는 것이 다시 주목받게 됐다. "
+    results = pipe(input_text)
+    pprint(results)
+
+
 if __name__ == "__main__":    
     sys.argv = ['', '--model_name', 'modernbert-base-kr']
     convert()

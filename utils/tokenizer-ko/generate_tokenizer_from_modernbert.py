@@ -83,7 +83,6 @@ def train_tokenizer():
         new_tokens.append(AddedToken(new_token_space, rstrip=False, lstrip=False, normalized=True, special=False))
     
     new_tokenizer.add_tokens(new_tokens, special_tokens=False)
-
     new_tokenizer.save_pretrained("./work/fineweb2_100_tokenizer")
     
 
