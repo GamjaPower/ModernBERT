@@ -8,6 +8,7 @@ import sys
 import argparse
 import torch
 import tempfile
+import os
 
 from transformers import pipeline
 from pprint import pprint
@@ -62,8 +63,7 @@ def update_config(source_config):
     return target_config
 
     
-def convert():
-    pass
+def convert( directory, filename ):
     
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -75,7 +75,7 @@ def convert():
     args = parser.parse_args()
 
     write_huggingface_pretrained_from_composer_checkpoint(
-        f"./checkpoints/{args.model_name}/ep0-ba6000-rank0.pt",
+        os.path.join(directory, filename),
         f"./models/{args.model_name}/",
     )
 
@@ -125,6 +125,22 @@ def convert():
     with open(f"./models/{args.model_name}/special_tokens_map.json", "w") as f:
         json.dump(config_dict, f, indent=2)
 
+
+def fire_pt(directory):
+    try:
+        files = os.listdir(directory)
+        print(f"Files in '{directory}':")
+        for filename in files:
+            if( filename.endswith(".pt") and filename.startswith("ep") ):
+                print(f"\t{filename}")
+                sys.argv = ['', '--model_name', filename.split('.')[0]]
+                convert(directory, filename)
+
+    except FileNotFoundError:
+        print(f"The directory '{directory}' does not exist.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 if __name__ == "__main__":    
-    sys.argv = ['', '--model_name', 'modernbert-base-kr']
-    convert()
+    # convert()
+    fire_pt('/Volumes/TrainData/checkpoints/modernbert-base-kr')

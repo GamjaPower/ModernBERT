@@ -174,3 +174,5 @@ work/
 models/
 checkpoints/
 tokenizer-save-dir*/
+/results
+*.tar

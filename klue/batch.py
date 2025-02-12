@@ -11,15 +11,8 @@ import os
 import argparse
 
 
-def eval():
+def eval(model_name):
 
-    # # ArgumentParser 객체 생성
-    # parser = argparse.ArgumentParser(description='명령줄 인자 예제')    
-    # # 인자 추가
-    # parser.add_argument('--model', type=str, help='model name', required=True)
-    # args = parser.parse_args()
-    model_name = 'lighthouse/mdeberta-v3-base-kor-further'
-    # model_name = './models/modernbert-base-kr'
     
     # 데이터셋 로드 (예: KLUE-TC task)
     dataset = load_dataset('klue/klue', 'ynat')
@@ -91,4 +84,10 @@ def eval():
 
 if __name__ == "__main__":
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
-    eval()
+
+    # model_name = './models/modernbert-base-kr'
+
+    models = os.listdir('./models/')
+    for model_name in models:
+        if model_name.startswith('ep'):
+            eval(f'./models/{model_name}')
