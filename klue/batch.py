@@ -78,7 +78,11 @@ def eval(model_name):
     # 평가 실행
     evaluation_results = trainer.evaluate()
 
-    
+    with open(f"./results/evaluation_results.txt", "a") as myfile:
+        myfile.write(model_name + '\n')
+        myfile.write(evaluation_results + '\n')
+
+    print(model_name)
     print(evaluation_results)
 
 
@@ -90,4 +94,5 @@ if __name__ == "__main__":
     models = os.listdir('./models/')
     for model_name in models:
         if model_name.startswith('ep'):
+            print(model_name)
             eval(f'./models/{model_name}')

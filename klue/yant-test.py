@@ -70,6 +70,7 @@ def eval():
         num_train_epochs=3,
         weight_decay=0.01,
     )
+    
 
     # Trainer 초기화
     trainer = Trainer(
