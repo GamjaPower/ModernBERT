@@ -12,9 +12,10 @@ def eval():
     dataset = load_dataset('klue/klue', 'ner')
 
     # 토크나이저와 모델 로드
-    tokenizer = AutoTokenizer.from_pretrained("klue/bert-base")
+    model_name = './models/modernbert-base-kr'
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForTokenClassification.from_pretrained(
-        "klue/bert-base", 
+        model_name, 
         num_labels=len(dataset["train"].features["ner_tags"].feature.names)
     )
 
