@@ -75,7 +75,8 @@ def convert():
     args = parser.parse_args()
 
     write_huggingface_pretrained_from_composer_checkpoint(
-        f"./checkpoints/{args.model_name}/ep1-ba18000-rank0.pt",
+        # f"./checkpoints/{args.model_name}/ep1-ba18000-rank0.pt",
+        f"./checkpoints/{args.model_name}/ep2-ba36000-rank0.pt",
         f"./models/{args.model_name}/",
     )
 

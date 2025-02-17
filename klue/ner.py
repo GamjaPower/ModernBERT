@@ -1,46 +1,39 @@
-## 필요한 라이브러리 설치
-# pip install transformers datasets evaluate seqeval
+from datasets import load_dataset
+from transformers import AutoTokenizer, AutoModelForTokenClassification
+from transformers import DataCollatorForTokenClassification, TrainingArguments, Trainer
+from sklearn.metrics import precision_recall_fscore_support
 
 import numpy as np
-from transformers import (
-    AutoModelForTokenClassification,
-    AutoTokenizer,
-    DataCollatorForTokenClassification,
-    Trainer,
-    TrainingArguments
-)
-from datasets import load_dataset
-import evaluate
+import os
+import argparse
 
-def eval():
-    ## 1. 모델 & 토크나이저 로드
-    model_name = "lighthouse/mdeberta-v3-base-kor-further"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+def eval(args):
+
+    # KLUE NER 데이터셋 로드
+    dataset = load_dataset('klue/klue', 'ner')
+
+    # 토크나이저와 모델 로드
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name)
+    labels = dataset["train"].features["ner_tags"].feature.names
     model = AutoModelForTokenClassification.from_pretrained(
-        model_name,
-        num_labels=13,  # KLUE NER 라벨 개수
-        id2label={i: f"LABEL_{i}" for i in range(13)},  # 실제 라벨 매핑 필요
-        label2id={f"LABEL_{i}": i for i in range(13)}
+        args.model_name, 
+        num_labels=len(labels),
+        id2label={i: label for i, label in enumerate(labels)},
+        label2id={label: i for i, label in enumerate(labels)}
     )
 
-    ## 2. 데이터셋 준비
-    dataset = load_dataset("klue/klue", "ner")
-
-    ## 3. 전처리 함수
+    # 토큰화 및 레이블 정렬 함수
     def tokenize_and_align_labels(examples):
         tokenized_inputs = tokenizer(
-            examples["tokens"],
-            truncation=True,
-            is_split_into_words=True,
-            max_length=512
+            examples['tokens'], 
+            truncation=True, 
+            is_split_into_words=True
         )
-
         labels = []
         for i, label in enumerate(examples["ner_tags"]):
             word_ids = tokenized_inputs.word_ids(batch_index=i)
             previous_word_idx = None
             label_ids = []
-            
             for word_idx in word_ids:
                 if word_idx is None:
                     label_ids.append(-100)
@@ -49,67 +42,85 @@ def eval():
                 else:
                     label_ids.append(-100)
                 previous_word_idx = word_idx
-            
             labels.append(label_ids)
-
         tokenized_inputs["labels"] = labels
         return tokenized_inputs
 
-    tokenized_dataset = dataset.map(
-        tokenize_and_align_labels,
-        batched=True,
-        remove_columns=dataset["train"].column_names
+    # 데이터셋 토큰화
+    tokenized_datasets = dataset.map(
+        tokenize_and_align_labels, 
+        batched=True
     )
 
-    ## 4. 평가 메트릭 설정
-    seqeval = evaluate.load("seqeval")
+    # 데이터 콜레이터 설정
+    data_collator = DataCollatorForTokenClassification(tokenizer)
 
-    label_list = [f"LABEL_{i}" for i in range(13)]  # Define label_list
-
+    # 평가 메트릭 정의
     def compute_metrics(p):
         predictions, labels = p
         predictions = np.argmax(predictions, axis=2)
 
         true_predictions = [
-            [label_list[p] for (p, l) in zip(prediction, label) if l != -100]
+            [p for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
         true_labels = [
-            [label_list[l] for (p, l) in zip(prediction, label) if l != -100]
+            [l for (p, l) in zip(prediction, label) if l != -100]
             for prediction, label in zip(predictions, labels)
         ]
 
-        results = seqeval.compute(
-            predictions=true_predictions,
-            references=true_labels,
-            mode="strict",
-            scheme="IOB2"
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            np.concatenate(true_labels),
+            np.concatenate(true_predictions),
+            average="macro"
         )
+        
         return {
-            "precision": results["overall_precision"],
-            "recall": results["overall_recall"],
-            "f1": results["overall_f1"],
-            "accuracy": results["overall_accuracy"],
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
         }
 
-    ## 5. 평가 실행
-    data_collator = DataCollatorForTokenClassification(tokenizer=tokenizer)
+    # 학습 인자 설정
+    training_args = TrainingArguments(
+        output_dir="./results",
+        eval_strategy="epoch",
+        learning_rate=2e-5,
+        per_device_train_batch_size=32,
+        per_device_eval_batch_size=32,
+        logging_dir="./logs",
+        num_train_epochs=1,
+        weight_decay=0.01,
+        report_to="none",
 
-    trainer = Trainer(
-        model=model,
-        args=TrainingArguments(
-            output_dir="./results",
-            per_device_eval_batch_size=16,
-            report_to="none"
-        ),
-        data_collator=data_collator,
-        eval_dataset=tokenized_dataset["validation"],
-        tokenizer=tokenizer,
     )
 
-    results = trainer.evaluate()
-    print(results)
+
+    # 트레이너 초기화
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized_datasets['train'],
+        eval_dataset=tokenized_datasets["validation"],
+        processing_class=tokenizer,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
+
+    # 모델 학습
+    trainer.train()
 
 
-if __name__ == "__main__":
-    eval()
+    # 평가 실행
+    evaluation_results = trainer.evaluate()    
+    print(evaluation_results)
+
+
+if __name__ == '__main__':
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+    parser = argparse.ArgumentParser(description="evaluate KLUE NER model")
+    parser.add_argument("--model_name", help="model name")
+    args = parser.parse_args()
+    args.model_name = "./models/modernbert-base-kr"
+    eval(args)

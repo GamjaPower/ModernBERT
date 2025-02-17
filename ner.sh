@@ -1,0 +1,1 @@
+python ./klue/ner.py --model_name ./models/modernbert-base-kr
