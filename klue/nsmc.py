@@ -22,10 +22,8 @@ def eval():
     model_name = './models/modernbert-base-kr'
     
     # 데이터셋 로드 (Naive Sentiment Movie Corpus)
-    # dataset = load_dataset('Blpeng/nsmc')
-    dataset = load_dataset('Bingsu/namuwiki_20210301_filtered')
-    
     # dataset = load_dataset('klue/klue', 'ynat')
+    dataset = load_dataset('Blpeng/nsmc')
 
 
     
@@ -77,6 +75,7 @@ def eval():
         per_device_eval_batch_size=8,
         num_train_epochs=3,
         weight_decay=0.01,
+        report_to='none'
     )
     
 
