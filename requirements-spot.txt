@@ -1,4 +1,4 @@
-transformers
+transformers[torch]
 datasets
 numpy
 scikit-learn
