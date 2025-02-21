@@ -8,11 +8,11 @@ def main():
     pipe = pipeline(
         "fill-mask",
         # model="answerdotai/ModernBERT-base",
-        model="./models/modernbert-base-kr",
+        # model="./models/modernbert-base-kr",
         # model="./models/ep1-ba18000-rank0",
         # model="neavo/modern_bert_multilingual",
         # model="neavo/keyword_gacha_base_multilingual",
-        # model="lighthouse/mdeberta-v3-base-kor-further",
+        model="lighthouse/mdeberta-v3-base-kor-further",
         # model="./models/modernbert-base-uncased",
         # torch_dtype=torch.float32,
         # pipeline_class='ModernBertForMaskedLM',

@@ -156,4 +156,4 @@ save_num_checkpoints_to_keep: -1  # Important, this cleans up checkpoints saved 
 save_folder: checkpoints/{run_name}
 
 # Load from local filesystem or remote object store to
-# load_path: null
+# load_path: nul
